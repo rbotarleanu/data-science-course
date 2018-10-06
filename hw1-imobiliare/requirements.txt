@@ -1,1 +1,7 @@
 Scrapy==1.5.1
+jupyter
+scikit-learn
+matplotlib
+numpy
+seaborn
+pandas
