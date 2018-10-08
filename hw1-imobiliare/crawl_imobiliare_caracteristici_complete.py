@@ -22,11 +22,12 @@ class ImobiliareSpider(scrapy.Spider):
 		detalii_complete = response.xpath('''//div[contains(@id, 'b_detalii_caracteristici')]/div/div/ul/li''')
 
 		with open(self.output_file, 'a') as fout:
+			features = self._get_features(detalii_complete)
 			fout.write(json.dumps({
 				'price': price_v,
 				'currency': currency_v,
 				'comission_v': comission_v,
-				**self._get_features(detalii_complete)
+				**features
 			}) + '\n')
 
 	def _get_features(self, features_selector):
