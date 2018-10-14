@@ -14,20 +14,25 @@ class ImobiliareSpider(scrapy.Spider):
 		with open('pagini_detalii.txt', 'rt') as fin:
 			for line in fin:
 				l = json.loads(line)
-				yield scrapy.Request(url=l[0], callback=partial(self.parse, price_v=l[1], currency_v=l[2], comission_v=l[3]))
+				yield scrapy.Request(url=l['details'],
+									 callback=partial(self.parse, main_page_info=l))
 
-	def parse(self, response, price_v, currency_v, comission_v):
+	def parse(self, response, main_page_info):
 		print('\n\nParsing: %s' % response.url)
-		print('Price_v:', price_v, 'currency:', 'currency_v', 'comision:', comission_v)
+
 		detalii_complete = response.xpath('''//div[contains(@id, 'b_detalii_caracteristici')]/div/div/ul/li''')
+		detalii_text = "\n".join(response.xpath('''//div[@id="b_detalii_text"]/p/text()''').extract())
+		specificatii = "\n".join(response.xpath('''//div[@id="b_detalii_specificatii"]//text()''').extract())
+		locatii = "\n".join(list(filter(lambda e: e != '', map(lambda d: d.strip(), response.xpath('''//div[@id="b-detalii-poi"]//text()''').extract()))))
 
 		with open(self.output_file, 'a') as fout:
 			features = self._get_features(detalii_complete)
 			fout.write(json.dumps({
-				'price': price_v,
-				'currency': currency_v,
-				'comission_v': comission_v,
-				**features
+				**main_page_info,
+				**features,
+				"description": detalii_text,
+				"specifications": specificatii,
+				"poi": locatii
 			}) + '\n')
 
 	def _get_features(self, features_selector):
