@@ -19,9 +19,9 @@ class LinearRegressionTF:
         theta = tf.matmul(
                     tf.matmul(
                         tf.linalg.inv(
-                            tf.matmul(tf.transpose(X), X) - mreg
+                            1/n * tf.matmul(tf.transpose(X), X) + mreg
                         ),
-                        tf.transpose(X)),
+                        1/n * tf.transpose(X)),
                     y)
 
         self.intercept_ = theta[-1]
